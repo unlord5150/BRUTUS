@@ -147,7 +147,7 @@ FROM RLY
 <text x="8.89" y="13.97" size="1.778" layer="112">GND</text>
 <text x="6.35" y="39.37" size="1.778" layer="112">OUT</text>
 <text x="35.56" y="3.81" size="1.778" layer="112">IN</text>
-<text x="8.89" y="80.01" size="1.778" layer="112">BREWERY CONTROLLER
+<text x="15.24" y="80.01" size="1.778" layer="112">BREWERY CONTROLLER
 K. NILSSON 2015-06-27</text>
 </plain>
 <libraries>
