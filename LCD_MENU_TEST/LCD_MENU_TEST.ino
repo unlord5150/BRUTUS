@@ -178,7 +178,7 @@ if (latch14 == HIGH){
 if (latch16 == HIGH){
   PIDcontrolHLT();
 }
-//updateoutputs();
+updateoutputs();
 }
 
 void homescreen(){
