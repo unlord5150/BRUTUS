@@ -138,7 +138,7 @@ void setup()
   lcd.init();
   lcd.backlight();
   lcd.clear();
-  //Serial.begin (9600);
+  Serial.begin (9600);
   //windowStartTime = millis();
 
   //initialize the variables we're linked to
@@ -392,12 +392,18 @@ void manualControl(){
         lcd.setCursor(6,1);
         lcd.print("OFF");
         outputState1[0] = 0;
+        Serial.println(outputState1[0]);
+        Serial.println(y1);
+        Serial.println(shiftOUT1);
         delay(100);
       }
         if ((digitalRead(encoder0PinC) == LOW) && (encoder0Pos == 0) && (outputState1[0] == 0)){
         lcd.setCursor(6,1);
         lcd.print("ON ");
-        outputState1[0] = 1;  
+        outputState1[0] = 1;
+        Serial.println(outputState1[0]);
+        Serial.println(y1);
+        Serial.println(shiftOUT1);  
         delay(100);
        }
         else if ((digitalRead(encoder0PinC) == LOW) && (encoder0Pos == 2) && (latch14 == LOW)){
@@ -652,8 +658,8 @@ void updateoutputs(){
  y15 = (outputState2[6] * 2);
  y16 = (0 * 1);  
       
-    shiftOUT1 = (y1 + y2 + y3 + y4 + y5 + y6 + y7 + y8);
-    shiftOUT2 = (y9 + y10 + y11 + y12 + y13 + y14 + y15 + y16);
+    shiftOUT1 = (byte)(y1 + y2 + y3 + y4 + y5 + y6 + y7 + y8);
+    shiftOUT2 = (byte)(y9 + y10 + y11 + y12 + y13 + y14 + y15 + y16);
     digitalWrite(latchPin, LOW);
     shiftOut(dataPin, clockPin, LSBFIRST, shiftOUT2); 
     shiftOut(dataPin, clockPin, LSBFIRST, shiftOUT1);
@@ -832,10 +838,10 @@ void updateinputs(){
 
     MTInput = analogRead(0);
     HLTInput = analogRead(1);
-    digitalWrite(loadPin, 1);
+    digitalWrite(loadPin, HIGH);
     delayMicroseconds(20);
-    digitalWrite(clockPinIN, 1);
-    digitalWrite(loadPin, 0);
+    digitalWrite(clockPinIN, HIGH);
+    digitalWrite(loadPin, LOW);
     shiftIN1 = shiftIn(dataPinIN, clockPinIN, MSBFIRST); 
     delay(5);
     shiftIN2 = shiftIn(dataPinIN, clockPinIN, MSBFIRST);
