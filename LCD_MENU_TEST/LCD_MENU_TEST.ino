@@ -392,18 +392,18 @@ void manualControl(){
         lcd.setCursor(6,1);
         lcd.print("OFF");
         outputState1[0] = 0;
-        Serial.println(outputState1[0]);
-        Serial.println(y1);
-        Serial.println(shiftOUT1);
+        //Serial.println(outputState1[0]);
+        //Serial.println(y1);
+        //Serial.println(shiftOUT1);
         delay(100);
       }
         if ((digitalRead(encoder0PinC) == LOW) && (encoder0Pos == 0) && (outputState1[0] == 0)){
         lcd.setCursor(6,1);
         lcd.print("ON ");
         outputState1[0] = 1;
-        Serial.println(outputState1[0]);
-        Serial.println(y1);
-        Serial.println(shiftOUT1);  
+        //Serial.println(outputState1[0]);
+        //Serial.println(y1);
+        //Serial.println(shiftOUT1);  
         delay(100);
        }
         else if ((digitalRead(encoder0PinC) == LOW) && (encoder0Pos == 2) && (latch14 == LOW)){
@@ -636,11 +636,11 @@ void valveControl(){
 
 void updateoutputs(){
   
-  //for (m = 1; m < 13; m++){
-  //  if (inputState1[m+1] == 0){
-  //  outputState1[m] = 0;  
-  //  }
- // }
+  for (m = 1; m < 13; m++){
+    if (inputState1[m+1] == 0){
+    outputState1[m] = 0;  
+    }
+  }
  y1 = (outputState1[0] * 128);   
  y2 = (outputState1[1] * 64);    
  y3 = (outputState1[2] * 32);
