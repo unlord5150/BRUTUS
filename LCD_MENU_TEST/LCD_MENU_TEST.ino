@@ -79,39 +79,40 @@ int v3c = 0;
 int v4c = 0;
 int v5c = 0;
 int v6c = 0;
-int v1osw;
-int v2osw;
-int v3osw;
-int v4osw;
-int v5osw;
-int v6osw;
-int v1csw;
-int v2csw;
-int v3csw;
-int v4csw;
-int v5csw;
-int v6csw;
-int y1;
-int y2;
-int y3;
-int y4;
-int y5;
-int y6;
-int y7;
-int y8;
-int y9;
-int y10;
-int y11;
-int y12;
-int y13;
-int y14;
-int y15;
-int x1 = 0;
-int x2 = 0;
+int v1osw = 1;
+int v2osw = 1;
+int v3osw = 1;
+int v4osw = 1;
+int v5osw = 1;
+int v6osw = 1;
+int v1csw = 1;
+int v2csw = 1;
+int v3csw = 1;
+int v4csw = 1;
+int v5csw = 1;
+int v6csw = 1;
+int y1 =0;
+int y2=0;
+int y3=0;
+int y4=0;
+int y5=0;
+int y6=0;
+int y7=0;
+int y8=0;
+int y9=0;
+int y10=0;
+int y11=0;
+int y12=0;
+int y13=0;
+int y14=0;
+int y15=0;
+int y16=0;
+//int x1 = 0;
+//int x2 = 0;
 int inputState1[12]={v1osw, v2osw, v3osw, v4osw, v5osw, v6osw, v1csw, v2csw, v3csw, v4csw, v5csw, v6csw};
 //int inputState2[8]={v2csw, v3csw, v4csw, v5csw, v6csw};
-int outputState1[]={p1, v1o, v2o, v3o, v4o, v5o, v6o, v1c, v2c, v3c, v4c, v5c, v6c};
-int outputState2[]={v2c, v3c, v4c, v5c, v6c, MTPIDOUT, HLTPIDOUT};
+int outputState1[13]={p1, v1o, v2o, v3o, v4o, v5o, v6o, v1c, v2c, v3c, v4c, v5c, v6c};
+int outputState2[7]={v2c, v3c, v4c, v5c, v6c, MTPIDOUT, HLTPIDOUT};
 byte shiftIN1;
 byte shiftIN2;
 int shiftOUT1;
@@ -133,9 +134,8 @@ void setup()
   pinMode (dataPinIN, INPUT);
   pinMode (loadPin, OUTPUT);
   pinMode (clockPinIN, OUTPUT);
-  //lcd.init();                      // initialize the lcd 
+  // initialize the lcd 
   lcd.init();
-  // Print a message to the LCD.
   lcd.backlight();
   lcd.clear();
   //Serial.begin (9600);
@@ -152,31 +152,33 @@ void setup()
   //turn the PID on
   MTPID.SetMode(AUTOMATIC);
   HLTPID.SetMode(AUTOMATIC);
-  //MTTEMP = analogRead(0);
-  //HLTTEMP = analogRead(1);
-  //digitalWrite(loadPin, 0);
 }
 
 
 void loop(){
 updateinputs(); 
   if (latch1 == HIGH){
-    homescreen();}
-  //if (digitalRead(encoder0PinC) == LOW){  
-  //menuscreen();}
- if(latch2 == HIGH){
-  menuscreen();}
- if (latch6 == HIGH){
-  valveControl();}
+    homescreen();
+  }
+  if(latch2 == HIGH){
+     menuscreen();
+   }
+  if (latch6 == HIGH){
+    valveControl();
+  }
  if (latch8 == HIGH){
-   manualControl();}
+   manualControl();
+ }
 if (latch10 == HIGH){
-    settemps();}
+    settemps();
+  }
 if (latch14 == HIGH){
-  PIDcontrolMT();}
+  PIDcontrolMT();
+}
 if (latch16 == HIGH){
-  PIDcontrolHLT();}
-updateoutputs();
+  PIDcontrolHLT();
+}
+//updateoutputs();
 }
 
 void homescreen(){
@@ -193,46 +195,40 @@ void homescreen(){
   lcd.setCursor(0,0);
   lcd.print("HOME         PROG#  ");
   lcd.setCursor(0,1);
-  lcd.print("P1:    VIN:  VOUT:   ");
+  lcd.print("P1:    VIN:  VOUT:  ");
+  lcd.setCursor(0,2);
+  lcd.print("HLT:      MT:      ");
+  lcd.setCursor(0,3);
+  lcd.print("STEP:    TIME:   min");
   lcd.setCursor(3,1);
   if (outputState1[0] == 0){
     lcd.print("OFF");}
   else if(outputState1[0] == 1){
     lcd.print("ON");}
-  //lcd.setCursor(7,1);
-  //lcd.print("IN:V");
   lcd.setCursor(11,1);
   for (int i = 1; i <= 3; i++){
      if (outputState1[i] == 1){
-       lcd.print(i);}}
-  //lcd.setCursor(13,1);
-  //lcd.print("OUT:V");
+       lcd.print(i);
+       }
+     }
   lcd.setCursor(18,1);
   for (int j = 4; j <= 6; j++){
     if (outputState1[j] == 1){
-       lcd.print(j);}}
-  lcd.setCursor(0,2);
-  lcd.print("HLT:      MT:      ");
+       lcd.print(j);
+     }
+   }
+  
+  
   lcd.setCursor(4,2);
   lcd.print(HLTInput);
-  //lcd.setCursor(7,2);
-  //lcd.print("F");
-  //lcd.setCursor(13,2);
-  //lcd.print("MT:");
   lcd.setCursor(13,2);
   lcd.print(MTInput);
-  //lcd.setCursor(19,2);
-  //lcd.print("F");
-  lcd.setCursor(0,3);
-  lcd.print("STEP:    TIME:   min");
+  
+  
   lcd.setCursor(5,3);
   lcd.print(currentStep);
-  //lcd.setCursor(9,3);
-  //lcd.print("TIME:");
   lcd.setCursor(14,3);
   lcd.print(timeRemaining);
-  //lcd.setCursor(17,3);
-  //lcd.print("min");
   return;
   }
    
@@ -250,20 +246,13 @@ void menuscreen(){
     latch4 = HIGH;}
   lcd.setCursor(1,1);
   lcd.print("MAN CON   CALL PROG");
-  //lcd.setCursor(11,1);
-  //lcd.print("CALL PROG");
   lcd.setCursor(1,2);
   lcd.print("RUN PROG  EDIT PROG");
-  //lcd.setCursor(11,2);
-  //lcd.print("EDIT PROG");
   lcd.setCursor(16,3);
   lcd.print("EXIT");
   
   attachInterrupt(0, rotary, CHANGE);
   
-  //n = digitalRead(encoder0PinA);
-    //if ((encoder0PinALast == HIGH) && (n == LOW)) {
-      //if (digitalRead(encoder0PinB) == HIGH) {
         if (encoder0Pos < 0){
           encoder0Pos = 4;}
         if (encoder0Pos > 4){
@@ -301,7 +290,7 @@ void menuscreen(){
         //encoder0PinALast = HIGH;
         //n = HIGH;
         //lcd.clear();
-        delay(200);
+        delay(100);
       }      
    if ((digitalRead(encoder0PinC) == LOW) && (encoder0Pos == 0)){         
         latch1 = LOW;
@@ -405,12 +394,12 @@ void manualControl(){
         outputState1[0] = 0;
         delay(100);
       }
-        else if ((digitalRead(encoder0PinC) == LOW) && (encoder0Pos == 0) && (outputState1[0] == 0)){
+        if ((digitalRead(encoder0PinC) == LOW) && (encoder0Pos == 0) && (outputState1[0] == 0)){
         lcd.setCursor(6,1);
         lcd.print("ON ");
         outputState1[0] = 1;  
         delay(100);
-        }
+       }
         else if ((digitalRead(encoder0PinC) == LOW) && (encoder0Pos == 2) && (latch14 == LOW)){
           lcd.setCursor(4,2);
           lcd.print("ON ");
@@ -473,9 +462,11 @@ void manualControl(){
 
 void valveControl(){
   if (encoder0Pos < 0){
-          encoder0Pos = 6;}
+          encoder0Pos = 6;
+        }
   if (encoder0Pos > 6){
-          encoder0Pos = 0;}
+          encoder0Pos = 0;
+        }
   //latch1 = LOW;
   //latch2 = LOW;
   //latch6 = HIGH;
@@ -487,45 +478,57 @@ void valveControl(){
   if (latch4 == LOW){
     lcd.setCursor(0,1);
     lcd.print(">");
-    latch4 = HIGH;}
+    latch4 = HIGH;
+  }
   lcd.setCursor(1,1);
   lcd.print("V1:     V2:");
   lcd.setCursor(4,1);
   if ((outputState1[7]==1) || (inputState1[6]==0)){
-    lcd.print("CLS");}
+    lcd.print("CLS");
+  }
     else if ((outputState1[1]==1) || (inputState1[0]==0)){
-      lcd.print("OPN");}
+      lcd.print("OPN");
+    }
   lcd.setCursor(12,1);
-  if ((outputState1[8]==1) || (inputState1[7]==0)){
-    lcd.print("CLS");}
-    else if ((outputState1[2]==1) || (inputState1[1]==0)){
-      lcd.print("OPN");}
-  
+  if (outputState1[8]==1){
+    lcd.print("CLS");
+  }
+    else if (outputState1[2]==1){
+      lcd.print("OPN");
+    }
   lcd.setCursor(1,2);
   lcd.print("V3:     V4:");
   lcd.setCursor(4,2);
-  if ((outputState1[9]==1) || (inputState1[8]==0)){
-    lcd.print("CLS");}
-    else if ((outputState1[3]==1) || (inputState1[2]==0)){
-      lcd.print("OPN");}
+  if (outputState1[9]==1){
+    lcd.print("CLS");
+  }
+    else if (outputState1[3]==1){
+      lcd.print("OPN");
+    }
   lcd.setCursor(12,2);
-  if ((outputState1[10]==1) || (inputState1[9]==0)){
-    lcd.print("CLS");}
-    else if ((outputState1[4]==1) || (inputState1[3]==0)){
-      lcd.print("OPN");}
+  if (outputState1[10]==1){
+    lcd.print("CLS");
+  }
+    else if (outputState1[4]==1){
+      lcd.print("OPN");
+    }
   
   lcd.setCursor(1,3);
   lcd.print("V5:     V6:");
   lcd.setCursor(4,3);
-  if ((outputState1[11]==1) || (inputState1[10]==0)){
-    lcd.print("CLS");}
-    else if ((outputState1[5]==1) || (inputState1[4]==0)){
-      lcd.print("OPN");}
+  if (outputState1[11]==1){
+    lcd.print("CLS");
+  }
+    else if (outputState1[5]==1){
+      lcd.print("OPN");
+    }
   lcd.setCursor(12,3);
-  if ((outputState1[12]==1) || (inputState1[11]==0)){
-    lcd.print("CLS");}
-    else if ((outputState1[6]==1) || (inputState1[5]==0)){
-      lcd.print("OPN");}
+  if (outputState1[12]==1){
+    lcd.print("CLS");
+  }
+    else if (outputState1[6]==1){
+      lcd.print("OPN");
+    }
   lcd.setCursor(16,3);
   lcd.print("BACK");
   
@@ -554,10 +557,7 @@ void valveControl(){
      outputState1[encoder0Pos + 1] = 1;
      outputState1[encoder0Pos + 7] = 0;
      delay(100);
-   }
-        
-      
-      
+   }      
   //  else if ((digitalRead(encoder0PinC) == LOW) && (outputState1[encoder0Pos +1] == 0) && (encoder0Pos != 6)  && (inputState1[encoder0Pos] == 0)){
   //      lcd.setCursor((valveconCol[encoder0Pos]+4), valveconRow[encoder0Pos]);
   //      lcd.print("CLS");
@@ -581,10 +581,10 @@ void valveControl(){
   //      delay(100);
   //  }
     else if ((digitalRead(encoder0PinC) == LOW) && (outputState1[encoder0Pos +7] == 0) && (encoder0Pos != 6)  && (inputState1[encoder0Pos + 6] == 1)){
-         lcd.setCursor((valveconCol[encoder0Pos]+4), valveconRow[encoder0Pos]);
+         lcd.setCursor((valveconCol[encoder0Pos] +4), valveconRow[encoder0Pos]);
         lcd.print("CLS");
-        outputState1[encoder0Pos + 1] = 1;
-        outputState1[encoder0Pos + 7] = 0;
+        outputState1[encoder0Pos + 1] = 0;
+        outputState1[encoder0Pos + 7] = 1;
         delay(100);
     }
   //  else if ((digitalRead(encoder0PinC) == LOW) && (outputState1[encoder0Pos +7] == 0) && (encoder0Pos != 6)  && (inputState1[encoder0Pos+6] == 0)){
@@ -629,48 +629,40 @@ void valveControl(){
 }
 
 void updateoutputs(){
- // p1= outputState1[0];
-  //v1o= outputState1[1];
-  //v2o= outputState1[2];
-  //v3o= outputState1[3];
-  //v4o= outputState1[4];
-  //v5o= outputState1[5];
-  //v6o= outputState1[6];
-  //v1c= outputState2[7];
-  //v2c= outputState2[0];
-  //v3c= outputState2[1];
-  //v4c= outputState2[2];
-  //v5c= outputState2[3];
-  //v6c= outputState2[4];
-  for (m = 0; m < 12; m++){
-    if (inputState1[m] == 0){
-    outputState1[m+1] = 0;  
-    }
-  }
-  y1 = (outputState1[0] * 128);   
-    y2 = (outputState1[1] * 64);    
-    y3 = (outputState1[2] * 32);
-     y4 = (outputState1[3] * 16);
-    y5 = (outputState1[4] * 8);
-    y6 = (outputState1[5] * 4);
-    y7 = (outputState1[6] * 2);
-    y8 = (outputState1[7] * 1);
-    y9 = (outputState1[8] * 128);
-    y10 = (outputState1[9] * 64);
-    y11 = (outputState1[10] * 32);
-    y12 = (outputState1[11] * 16);
-    y13 = (outputState1[12] * 8);
-  y14 = (outputState2[5] * 4);
-  y15 = (outputState2[6] * 2);
-  //int y16 = (0 * 1);  
+  
+  //for (m = 1; m < 13; m++){
+  //  if (inputState1[m+1] == 0){
+  //  outputState1[m] = 0;  
+  //  }
+ // }
+ y1 = (outputState1[0] * 128);   
+ y2 = (outputState1[1] * 64);    
+ y3 = (outputState1[2] * 32);
+ y4 = (outputState1[3] * 16);
+ y5 = (outputState1[4] * 8);
+ y6 = (outputState1[5] * 4);
+ y7 = (outputState1[6] * 2);
+ y8 = (outputState1[7] * 1);
+ y9 = (outputState1[8] * 128);
+ y10 = (outputState1[9] * 64);
+ y11 = (outputState1[10] * 32);
+ y12 = (outputState1[11] * 16);
+ y13 = (outputState1[12] * 8);
+ y14 = (outputState2[5] * 4);
+ y15 = (outputState2[6] * 2);
+ y16 = (0 * 1);  
       
-    shiftOUT1 = (y1+y2+y3+y4+y5+y6+y7+y8);
-    shiftOUT2 = (y9+ y10+ y11+ y12+ y13+y14+y15);
+    shiftOUT1 = (y1 + y2 + y3 + y4 + y5 + y6 + y7 + y8);
+    shiftOUT2 = (y9 + y10 + y11 + y12 + y13 + y14 + y15 + y16);
     digitalWrite(latchPin, LOW);
-    shiftOut(dataPin, clockPin, LSBFIRST,shiftOUT2); 
-    shiftOut(dataPin, clockPin, LSBFIRST,shiftOUT1);
+    shiftOut(dataPin, clockPin, LSBFIRST, shiftOUT2); 
+    shiftOut(dataPin, clockPin, LSBFIRST, shiftOUT1);
     digitalWrite(latchPin, HIGH);
-    m = 0;
+    //m = 0;
+    //Serial.println(shiftOUT1, BIN);
+    //delay(500);
+    //Serial.println(shiftOUT2, BIN);
+    //delay(500);
     return;
 }
 
@@ -837,59 +829,33 @@ return;
 }
    
 void updateinputs(){
-  //v1osw= inputState1[0];
-  //v2osw= inputState1[1];
-  //v3osw= inputState1[2];
-  //v4osw= inputState1[3];
-  //v5osw= inputState1[4];
-  //v6osw= inputState1[5];
-  //v1csw= inputState1[6];
-  //v2csw= inputState1[7];
-  //v3csw= inputState2[0];
-  //v4csw= inputState2[1];
-  //v5csw= inputState2[2];
-  //v6csw= inputState2[3];
+
     MTInput = analogRead(0);
     HLTInput = analogRead(1);
     digitalWrite(loadPin, 1);
     delayMicroseconds(20);
     digitalWrite(clockPinIN, 1);
     digitalWrite(loadPin, 0);
-    shiftIN2 = shiftIn(dataPinIN, clockPinIN, MSBFIRST); 
-    shiftIN1 = shiftIn(dataPinIN, clockPinIN, MSBFIRST);
-    //delay(20);
+    shiftIN1 = shiftIn(dataPinIN, clockPinIN, MSBFIRST); 
+    delay(5);
+    shiftIN2 = shiftIn(dataPinIN, clockPinIN, MSBFIRST);
+    delay(5);
     
     
   for (k = 0; k < 8; k++){
-    inputState1[k] = bitRead(shiftIN1,k);}
+    inputState1[k] = bitRead(shiftIN1,k);
+  }
   for (l = 0; l < 8; l++){
-    inputState1[l +8] = bitRead(shiftIN2,l);}
+    inputState1[l +8] = bitRead(shiftIN2,l);
+  }
   
-  //int x2 = (inputState1[1] * 64);
-  //int x3 = (inputState1[2] * 32);
-  //int x4 = (inputState1[3] * 16);
-  //int x5 = (inputState1[4] * 8);
-  //int x6 = (inputState1[5] * 4);
-  //int x7 = (inputState1[6] * 2);
-  //int x8 = (inputState1[7] * 1);
-  //int x9 = (inputState2[0] * 128);
-  //int x10 = (inputState2[1] * 64);
-  //int x11 = (inputState2[2] * 32);
-  //int x12 = (inputState2[3] * 16);
-
-  //int y14 = (t1 * 4);
-  //int y15 = (t2 * 2);
-  //int y16 = (0 * 1);  
-      
-    //shiftIN1 = (x1+x2+x3+x4+x5+x6+x7+x8);
-    //shiftIN2 = (x9+x10+x11+x12);
-k = 0;
-l = 0;
-//Serial.println(shiftIN2, BIN);
-//delay(500);
+//Serial.println("SHIFTIN1");
 //Serial.println(shiftIN1, BIN);
-//delay(500);
-    return;
+//delay(100);
+//Serial.println("SHIFTIN2");
+//Serial.println(shiftIN2, BIN);
+//delay(100);
+return;
 }
 void rotary(){
     n = digitalRead(encoder0PinA);  
