@@ -855,12 +855,12 @@ void updateinputs(){
     inputState1[l +8] = bitRead(shiftIN2,l);
   }
   
-//Serial.println("SHIFTIN1");
-//Serial.println(shiftIN1, BIN);
-//delay(100);
-//Serial.println("SHIFTIN2");
-//Serial.println(shiftIN2, BIN);
-//delay(100);
+Serial.println("SHIFTIN1");
+Serial.println(shiftIN1, BIN);
+delay(100);
+Serial.println("SHIFTIN2");
+Serial.println(shiftIN2, BIN);
+delay(100);
 return;
 }
 void rotary(){
