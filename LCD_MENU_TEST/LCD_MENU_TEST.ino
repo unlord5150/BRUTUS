@@ -637,7 +637,7 @@ void valveControl(){
 void updateoutputs(){
   
   for (m = 1; m < 13; m++){
-    if (inputState1[m+1] == 0){
+    if (inputState1[m-1] == 0){
     outputState1[m] = 0;  
     }
   }
@@ -855,12 +855,12 @@ void updateinputs(){
     inputState1[l +8] = bitRead(shiftIN2,l);
   }
   
-Serial.println("SHIFTIN1");
-Serial.println(shiftIN1, BIN);
-delay(100);
-Serial.println("SHIFTIN2");
-Serial.println(shiftIN2, BIN);
-delay(100);
+//Serial.println("SHIFTIN1");
+//Serial.println(shiftIN1, BIN);
+//delay(500);
+//Serial.println("SHIFTIN2");
+//Serial.println(shiftIN2, BIN);
+//delay(500);
 return;
 }
 void rotary(){
