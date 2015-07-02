@@ -42,7 +42,7 @@ int encoder0PinB = 9;
 int encoder0PinC = 10;
 int encoder0Pos = 0;
 int encoder0PinALast = HIGH;
-int n;
+int n = HIGH;
 int k;
 int l;
 int m;
@@ -116,7 +116,16 @@ byte shiftIN2;
 int shiftOUT1;
 int shiftOUT2;
 int currentStep;
-int timeRemaining;
+unsigned long starttime = 0; //zero out start time
+int timer1min = 1; //setpoint in minutes
+int timer1set = (timer1min * 1000 *60); //setpoint in millis
+unsigned long endtime = 0; //zero out end time
+unsigned long timeRemaining = 0; //zero out the timer countdown
+//unsigned long now = 0;
+int timer1done = LOW;
+int timersetup = LOW;
+int timerlatch = LOW;
+
 
 int MTTEMP;
 int HLTTEMP;
@@ -562,28 +571,7 @@ void valveControl(){
      outputState1[encoder0Pos + 7] = 0;
      delay(100);
    }      
-  //  else if ((digitalRead(encoder0PinC) == LOW) && (outputState1[encoder0Pos +1] == 0) && (encoder0Pos != 6)  && (inputState1[encoder0Pos] == 0)){
-  //      lcd.setCursor((valveconCol[encoder0Pos]+4), valveconRow[encoder0Pos]);
-  //      lcd.print("CLS");
-  //      outputState1[encoder0Pos + 1] = 0;
-  //      outputState1[encoder0Pos + 7] = 1;
-  //      delay(100);
-  //  }
-    
-  //else if ((digitalRead(encoder0PinC) == LOW) && (outputState1[encoder0Pos +1] == 1) && (encoder0Pos != 6)  && (inputState1[encoder0Pos] == 0)){
-  //      lcd.setCursor((valveconCol[encoder0Pos]+4), valveconRow[encoder0Pos]);
-  //      lcd.print("CLS");
-  //      outputState1[encoder0Pos + 1] = 0;
-  //      outputState1[encoder0Pos + 7] = 1;
-  //      delay(100);
-  //  }
-  //  else if ((digitalRead(encoder0PinC) == LOW) && (outputState1[encoder0Pos +1] == 1) && (encoder0Pos != 6)  && (inputState1[encoder0Pos] == 1)){
-  //      lcd.setCursor((valveconCol[encoder0Pos]+4), valveconRow[encoder0Pos]);
-  //      lcd.print("OPN");
-  //      outputState1[encoder0Pos + 1] = 1;
-  //      outputState1[encoder0Pos + 7] = 0;
-  //      delay(100);
-  //  }
+ 
     else if ((digitalRead(encoder0PinC) == LOW) && (outputState1[encoder0Pos +7] == 0) && (encoder0Pos != 6)  && (inputState1[encoder0Pos + 6] == 1)){
          lcd.setCursor((valveconCol[encoder0Pos] +4), valveconRow[encoder0Pos]);
         lcd.print("CLS");
@@ -591,27 +579,6 @@ void valveControl(){
         outputState1[encoder0Pos + 7] = 1;
         delay(100);
     }
-  //  else if ((digitalRead(encoder0PinC) == LOW) && (outputState1[encoder0Pos +7] == 0) && (encoder0Pos != 6)  && (inputState1[encoder0Pos+6] == 0)){
-  //      lcd.setCursor((valveconCol[encoder0Pos]+4), valveconRow[encoder0Pos]);
-  //      lcd.print("OPN");
-  //      outputState1[encoder0Pos + 1] = 0;
-  //      outputState1[encoder0Pos + 7] = 1;
-  //      delay(100);
-  //  }
-  //  else if ((digitalRead(encoder0PinC) == LOW) && (outputState1[encoder0Pos +7] == 1) && (encoder0Pos != 6)  && (inputState1[encoder0Pos+6] == 1)){
-  //      lcd.setCursor((valveconCol[encoder0Pos]+4), valveconRow[encoder0Pos]);
-  //      lcd.print("CLS");
-  //      outputState1[encoder0Pos + 1] = 1;
-  //      outputState1[encoder0Pos + 7] = 0;
-  //      delay(100);
-  //  }
-  //  else if ((digitalRead(encoder0PinC) == LOW) && (outputState1[encoder0Pos +7] == 1) && (encoder0Pos != 6)  && (inputState1[encoder0Pos+6] == 0)){
-  //      lcd.setCursor((valveconCol[encoder0Pos]+4), valveconRow[encoder0Pos]);
-  //      lcd.print("OPN");
-  //      outputState1[encoder0Pos + 1] = 0;
-  //      outputState1[encoder0Pos + 7] = 1;
-  //      delay(100);
-  //  }
     
       else if ((digitalRead(encoder0PinC) == LOW) && (encoder0Pos == 6)){
         latch1 = LOW;
@@ -881,4 +848,23 @@ void rotary(){
   encoder0PinALast = n;
 
 }
-
+//-------------------------------------------------------------------------------------------------------------------
+void timer1(){
+  if (timersetup == LOW){ //if the skip bit is low
+  starttime = millis(); //set the start time to current millis
+  endtime = starttime + timer1set; //set the end time
+  timersetup = HIGH; //set the skip bit high
+  }
+  else if (endtime < millis()){ //if the timer is done
+  timer1done = HIGH; //set the timer done bit high
+  starttime = 0; //zero out the start time
+  endtime = 0; //zero out the end time
+  timerlatch = LOW; //disable the latch for timer 1
+  }
+  else if (endtime > millis()){
+        //now = millis() / 1000;
+        timeRemaining = ((endtime - millis())/60000); //calculate the countdown
+  int timerON = HIGH; //set the timer on bit to high
+  }
+return;
+}
