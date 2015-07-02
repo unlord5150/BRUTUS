@@ -107,8 +107,6 @@ int y13=0;
 int y14=0;
 int y15=0;
 int y16=0;
-//int x1 = 0;
-//int x2 = 0;
 int inputState1[12]={v1osw, v2osw, v3osw, v4osw, v5osw, v6osw, v1csw, v2csw, v3csw, v4csw, v5csw, v6csw};
 //int inputState2[8]={v2csw, v3csw, v4csw, v5csw, v6csw};
 int outputState1[13]={p1, v1o, v2o, v3o, v4o, v5o, v6o, v1c, v2c, v3c, v4c, v5c, v6c};
@@ -206,14 +204,14 @@ void homescreen(){
   else if(outputState1[0] == 1){
     lcd.print("ON");}
   lcd.setCursor(11,1);
-  for (int i = 1; i <= 3; i++){
-     if (outputState1[i] == 1){
+  for (int i = 0; i <= 2; i++){
+     if (inputState1[i] == 0){
        lcd.print(i);
        }
      }
   lcd.setCursor(18,1);
-  for (int j = 4; j <= 6; j++){
-    if (outputState1[j] == 1){
+  for (int j = 3; j <= 5; j++){
+    if (inputState1[j] == 0){
        lcd.print(j);
      }
    }
@@ -496,43 +494,43 @@ void valveControl(){
       lcd.print("OPN");
     }
   lcd.setCursor(12,1);
-  if (outputState1[8]==1){
+  if ((outputState1[8]==1) || (inputState1[7]==0)){
     lcd.print("CLS");
   }
-    else if (outputState1[2]==1){
+    else if ((outputState1[2]==1) || (inputState1[1]==0)){
       lcd.print("OPN");
     }
   lcd.setCursor(1,2);
   lcd.print("V3:     V4:");
   lcd.setCursor(4,2);
-  if (outputState1[9]==1){
+  if ((outputState1[9]==1) || (inputState1[8]==0)){
     lcd.print("CLS");
   }
-    else if (outputState1[3]==1){
+    else if ((outputState1[3]==1) || (inputState1[2]==0)){
       lcd.print("OPN");
     }
   lcd.setCursor(12,2);
-  if (outputState1[10]==1){
+  if ((outputState1[10]==1) || (inputState1[9]==0)){
     lcd.print("CLS");
   }
-    else if (outputState1[4]==1){
+    else if ((outputState1[4]==1) || (inputState1[3]==0)){
       lcd.print("OPN");
     }
   
   lcd.setCursor(1,3);
   lcd.print("V5:     V6:");
   lcd.setCursor(4,3);
-  if (outputState1[11]==1){
+  if ((outputState1[11]==1) || (inputState1[10]==0)){
     lcd.print("CLS");
   }
-    else if (outputState1[5]==1){
+    else if ((outputState1[5]==1) || (inputState1[4]==0)){
       lcd.print("OPN");
     }
   lcd.setCursor(12,3);
-  if (outputState1[12]==1){
+  if ((outputState1[12]==1) || (inputState1[11]==0)){
     lcd.print("CLS");
   }
-    else if (outputState1[6]==1){
+    else if ((outputState1[6]==1) || (inputState1[5]==0)){
       lcd.print("OPN");
     }
   lcd.setCursor(16,3);
