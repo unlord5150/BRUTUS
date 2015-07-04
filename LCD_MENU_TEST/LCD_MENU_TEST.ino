@@ -1,13 +1,9 @@
 //Brewery Controller Development Sketch
 //K. Nilsson, July 1, 2015
 //
-//YWROBOT
-//Compatible with the Arduino IDE 1.0
-//Library version:1.1
-#include <Wire.h>
-#include <LiquidCrystal_I2C.h>
-#include <PID_v1.h>
-
+#include <Wire.h>  //used for I2C
+#include <LiquidCrystal_I2C.h>  //used for the display
+#include <PID_v1.h> //used for the PID controllers
 
 //Define Variables for PID
 double MTsetpoint, MTInput, MTOutput, HLTsetpoint, HLTInput, HLTOutput;
@@ -18,7 +14,7 @@ PID HLTPID(&HLTInput, &HLTOutput, &HLTsetpoint, Kp, Ki, Kd, DIRECT);
 int WindowSize = 5000; //5 second PID cycle time
 unsigned long windowStartTime; //PID starttime variable
 // set the LCD address to 0x27 for a 20 chars and 4 line display
-LiquidCrystal_I2C lcd(0x27, 20, 4); 
+LiquidCrystal_I2C lcd(0x27, 20, 4);
 //set the pinouts
 int ISRpin = 2; //interrupt0 is on pin 2
 int latchPin = 5; //shiftOUT latch  pin
@@ -113,19 +109,64 @@ int shiftOUT1;
 int shiftOUT2;
 int currentStep;
 unsigned long starttime = 0; //zero out start time
-int timer1min = 1; //setpoint in minutes
-int timer1set = (timer1min * 1000 * 60); //setpoint in millis
+int timer1min = 0; //setpoint in minutes
+int timer1set = (timer1min * 60000); //setpoint in millis
 unsigned long endtime = 0; //zero out end time
 unsigned long timeRemaining = 0; //zero out the timer countdown
 //unsigned long now = 0;
 int timer1done = LOW;
-int timersetup = LOW;
-int timerlatch = LOW;
+int timer1setup = LOW;
+int timer1latch = LOW;
 
+int timer2min = 0; //setpoint in minutes
+int timer2set = (timer2min * 60000); //setpoint in millis
+int timer2done = LOW;
+int timer2setup = LOW;
+int timer2latch = LOW;
 
-int MTTEMP;
-int HLTTEMP;
+int timer3min = 0; //setpoint in minutes
+int timer3set = (timer3min * 60000); //setpoint in millis
+int timer3done = LOW;
+int timer3setup = LOW;
+int timer3latch = LOW;
 
+int timer4min = 0; //setpoint in minutes
+int timer4set = (timer4min * 60000); //setpoint in millis
+int timer4done = LOW;
+int timer4setup = LOW;
+int timer4latch = LOW;
+
+int timer5min = 0; //setpoint in minutes
+int timer5set = (timer5min * 60000); //setpoint in millis
+int timer5done = LOW;
+int timer5setup = LOW;
+int timer5latch = LOW;
+
+int timer6min = 0; //setpoint in minutes
+int timer6set = (timer6min * 60000); //setpoint in millis
+int timer6done = LOW;
+int timer6setup = LOW;
+int timer6latch = LOW;
+
+int timer7min = 0; //setpoint in minutes
+int timer7set = (timer7min * 60000); //setpoint in millis
+int timer7done = LOW;
+int timer7setup = LOW;
+int timer7latch = LOW;
+
+int HLTSTRIKE[16];
+int HLTSPARGE[16];
+int MTSTEP1[16];
+int MTSTEP2[16];
+int MTSTEP3[16];
+int MTSPARGE[16];
+int STEP1MIN[16];
+int STEP2MIN[16];
+int STEP3MIN[16];
+int BOILTIME[16];
+int PROGNUM = 0;
+
+//-----------------------------------------------------------------------------------------------------------------------
 void setup()
 {
   pinMode (encoder0PinA, INPUT);
@@ -157,7 +198,7 @@ void setup()
   HLTPID.SetMode(AUTOMATIC);
 }
 
-
+//------------------------------------------------------------------------------------------------------------------------------------
 void loop() {
   updateinputs();
   if (latch1 == HIGH) {
@@ -181,9 +222,27 @@ void loop() {
   if (latch16 == HIGH) {
     PIDcontrolHLT();
   }
+  if (timer1latch == HIGH) {
+    timer1();
+  }
+  if (timer2latch == HIGH) {
+    timer2();
+  }
+  if (timer3latch == HIGH) {
+    timer3();
+  }
+  if (timer4latch == HIGH) {
+    timer4();
+  }
+  if (timer5latch == HIGH) {
+    timer5();
+  }
+  if (timer6latch == HIGH) {
+    timer6();
+  }
   updateoutputs();
 }
-
+//----------------------------------------------------------------------------------------------------------------------------------
 void homescreen() {
 
   if (digitalRead(encoder0PinC) == LOW) {
@@ -204,6 +263,8 @@ void homescreen() {
   lcd.print("HLT:      MT:      ");
   lcd.setCursor(0, 3);
   lcd.print("STEP:    TIME:   min");
+  lcd.setCursor(18, 0);
+  lcd.print(PROGNUM);
   lcd.setCursor(3, 1);
   if (outputState1[0] == 0) {
     lcd.print("OFF");
@@ -229,8 +290,6 @@ void homescreen() {
   lcd.print(HLTInput);
   lcd.setCursor(13, 2);
   lcd.print(MTInput);
-
-
   lcd.setCursor(5, 3);
   lcd.print(currentStep);
   lcd.setCursor(14, 3);
@@ -869,28 +928,149 @@ void rotary() {
 }
 //-------------------------------------------------------------------------------------------------------------------
 void timer1() {
-  if (timersetup == LOW) { //if the skip bit is low
+  if (timer1setup == LOW) { //if the skip bit is low
     starttime = millis(); //set the start time to current millis
     endtime = starttime + timer1set; //set the end time
-    timersetup = HIGH; //set the skip bit high
+    timer1setup = HIGH; //set the skip bit high
   }
   else if (endtime < millis()) { //if the timer is done
     timer1done = HIGH; //set the timer done bit high
     starttime = 0; //zero out the start time
     endtime = 0; //zero out the end time
-    timerlatch = LOW; //disable the latch for timer 1
+    timer1latch = LOW; //disable the latch for timer 1
   }
   else if (endtime > millis()) {
     //now = millis() / 1000;
     timeRemaining = ((endtime - millis()) / 60000); //calculate the countdown
-    int timerON = HIGH; //set the timer on bit to high
+    int timer1ON = HIGH; //set the timer on bit to high
   }
   return;
 }
 
+void timer2() {
+  if (timer2setup == LOW) { //if the skip bit is low
+    starttime = millis(); //set the start time to current millis
+    endtime = starttime + timer2set; //set the end time
+    timer2setup = HIGH; //set the skip bit high
+  }
+  else if (endtime < millis()) { //if the timer is done
+    timer2done = HIGH; //set the timer done bit high
+    starttime = 0; //zero out the start time
+    endtime = 0; //zero out the end time
+    timer2latch = LOW; //disable the latch for timer 1
+  }
+  else if (endtime > millis()) {
+    //now = millis() / 1000;
+    timeRemaining = ((endtime - millis()) / 60000); //calculate the countdown
+    int timer2ON = HIGH; //set the timer on bit to high
+  }
+  return;
+}
+
+void timer3() {
+  if (timer3setup == LOW) { //if the skip bit is low
+    starttime = millis(); //set the start time to current millis
+    endtime = starttime + timer3set; //set the end time
+    timer3setup = HIGH; //set the skip bit high
+  }
+  else if (endtime < millis()) { //if the timer is done
+    timer3done = HIGH; //set the timer done bit high
+    starttime = 0; //zero out the start time
+    endtime = 0; //zero out the end time
+    timer3latch = LOW; //disable the latch for timer 1
+  }
+  else if (endtime > millis()) {
+    //now = millis() / 1000;
+    timeRemaining = ((endtime - millis()) / 60000); //calculate the countdown
+    int timer3ON = HIGH; //set the timer on bit to high
+  }
+  return;
+}
+
+void timer4() {
+  if (timer4setup == LOW) { //if the skip bit is low
+    starttime = millis(); //set the start time to current millis
+    endtime = starttime + timer4set; //set the end time
+    timer4setup = HIGH; //set the skip bit high
+  }
+  else if (endtime < millis()) { //if the timer is done
+    timer4done = HIGH; //set the timer done bit high
+    starttime = 0; //zero out the start time
+    endtime = 0; //zero out the end time
+    timer4latch = LOW; //disable the latch for timer 1
+  }
+  else if (endtime > millis()) {
+    //now = millis() / 1000;
+    timeRemaining = ((endtime - millis()) / 60000); //calculate the countdown
+    int timer4ON = HIGH; //set the timer on bit to high
+  }
+  return;
+}
+
+void timer5() {
+  if (timer5setup == LOW) { //if the skip bit is low
+    starttime = millis(); //set the start time to current millis
+    endtime = starttime + timer5set; //set the end time
+    timer5setup = HIGH; //set the skip bit high
+  }
+  else if (endtime < millis()) { //if the timer is done
+    timer5done = HIGH; //set the timer done bit high
+    starttime = 0; //zero out the start time
+    endtime = 0; //zero out the end time
+    timer5latch = LOW; //disable the latch for timer 1
+  }
+  else if (endtime > millis()) {
+    //now = millis() / 1000;
+    timeRemaining = ((endtime - millis()) / 60000); //calculate the countdown
+    int timer5ON = HIGH; //set the timer on bit to high
+  }
+  return;
+}
+
+void timer6() {
+  if (timer6setup == LOW) { //if the skip bit is low
+    starttime = millis(); //set the start time to current millis
+    endtime = starttime + timer6set; //set the end time
+    timer6setup = HIGH; //set the skip bit high
+  }
+  else if (endtime < millis()) { //if the timer is done
+    timer6done = HIGH; //set the timer done bit high
+    starttime = 0; //zero out the start time
+    endtime = 0; //zero out the end time
+    timer6latch = LOW; //disable the latch for timer 1
+  }
+  else if (endtime > millis()) {
+    //now = millis() / 1000;
+    timeRemaining = ((endtime - millis()) / 60000); //calculate the countdown
+    int timer6ON = HIGH; //set the timer on bit to high
+  }
+  return;
+}
 void runprogram() {
-  outputState1[1] = 1; //valve1 open
-  timer1min = .1; //set delay timer to 6 sec
-  
+  HLTsetpoint = HLTSTRIKE[PROGNUM];
+  latch16 = HIGH; //HLT PID controller on
+  if (HLTInput > (HLTsetpoint - 2)) { //if the HLT is at temp then
+    int strikelatch = HIGH;
+  }
+  if (int strikelatch == HIGH) {
+    outputState1[1] = 1; //valve1 open
+    timer1set = (.2 * 60000); //set delay timer to 12 sec
+    timer1latch = HIGH; //turn on the timer
+    if (timer1done == HIGH) { //if the delay timer is done then
+      outputState1[0] = 1; //turn pump on
+      outputState1[4] = 1; //valve 4 open
+    }
+  }
+  timer2set = (1 * 60000); //set pump timer to 1 minute (7 gal/min flowrate)
+  timer2latch = HIGH; //turn on the timer
+  if (timer2done == HIGH) {
+    outputState1[4] = 0;
+    outputState1[10] = 1; //valve 4 close
+    outputState1[1] = 0;
+    outputState1[7] = 1; //valve 1 close
+  }
+
+
+  return;
 }
 
