@@ -879,11 +879,11 @@ void PIDcontrolHLT() {
 
 void updateinputs() {
 
-  MTInput = (analogRead(0) * (60 / 341) + 32);
-  HLTInput = (analogRead(1) * (60 / 341) + 32);
+  MTInput = ((analogRead(0) * .175953) + 32); //convert bits to deg F
+  HLTInput = ((analogRead(1) * .175953) + 32); //convert bits to deg F
   digitalWrite(loadPin, HIGH);
   delayMicroseconds(20);
-  digitalWrite(clockPinIN, HIGH);
+  digitalWrite(clockPinIN, HIGH);  //this line compensates for an error in the shiftIn lib
   digitalWrite(loadPin, LOW);
   shiftIN1 = shiftIn(dataPinIN, clockPinIN, MSBFIRST);
   delay(5);
