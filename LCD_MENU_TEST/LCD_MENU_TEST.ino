@@ -165,6 +165,7 @@ int STEP2MIN[16];
 int STEP3MIN[16];
 int BOILTIME[16];
 int PROGNUM = 0;
+int strikelatch = LOW;
 
 //-----------------------------------------------------------------------------------------------------------------------
 void setup()
@@ -878,8 +879,8 @@ void PIDcontrolHLT() {
 
 void updateinputs() {
 
-  MTInput = analogRead(0);
-  HLTInput = analogRead(1);
+  MTInput = (analogRead(0) * (60 / 341) + 32);
+  HLTInput = (analogRead(1) * (60 / 341) + 32);
   digitalWrite(loadPin, HIGH);
   delayMicroseconds(20);
   digitalWrite(clockPinIN, HIGH);
@@ -1052,7 +1053,7 @@ void runprogram() {
   if (HLTInput > (HLTsetpoint - 2)) { //if the HLT is at temp then
     int strikelatch = HIGH;
   }
-  if (int strikelatch == HIGH) {
+  if (strikelatch == HIGH) {
     outputState1[1] = 1; //valve1 open
     timer1set = (.2 * 60000); //set delay timer to 12 sec
     timer1latch = HIGH; //turn on the timer
