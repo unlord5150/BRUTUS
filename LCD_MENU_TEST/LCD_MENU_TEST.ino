@@ -58,31 +58,31 @@ int latch14 = LOW;
 int latch15 = LOW;
 int latch16 = LOW;
 int latch17 = LOW;
-int p1 = 0;
-int v1o = 0;
-int v2o = 0;
-int v3o = 0;
-int v4o = 0;
-int v5o = 0;
-int v6o = 0;
-int v1c = 0;
-int v2c = 0;
-int v3c = 0;
-int v4c = 0;
-int v5c = 0;
-int v6c = 0;
-int v1osw = 1;
-int v2osw = 1;
-int v3osw = 1;
-int v4osw = 1;
-int v5osw = 1;
-int v6osw = 1;
-int v1csw = 1;
-int v2csw = 1;
-int v3csw = 1;
-int v4csw = 1;
-int v5csw = 1;
-int v6csw = 1;
+//int p1 = 0;
+//int v1o = 0;
+//int v2o = 0;
+//int v3o = 0;
+//int v4o = 0;
+//int v5o = 0;
+//int v6o = 0;
+//int v1c = 0;
+//int v2c = 0;
+//int v3c = 0;
+//int v4c = 0;
+//int v5c = 0;
+//int v6c = 0;
+//int v1osw = 1;
+//int v2osw = 1;
+//int v3osw = 1;
+//int v4osw = 1;
+//int v5osw = 1;
+//int v6osw = 1;
+//int v1csw = 1;
+//int v2csw = 1;
+//int v3csw = 1;
+//int v4csw = 1;
+//int v5csw = 1;
+//int v6csw = 1;
 int y1 = 0;
 int y2 = 0;
 int y3 = 0;
@@ -99,10 +99,10 @@ int y13 = 0;
 int y14 = 0;
 int y15 = 0;
 int y16 = 0;
-int inputState1[12] = {v1osw, v2osw, v3osw, v4osw, v5osw, v6osw, v1csw, v2csw, v3csw, v4csw, v5csw, v6csw};
+int inputState1[15]; //= {v1osw, v2osw, v3osw, v4osw, v5osw, v6osw, v1csw, v2csw, v3csw, v4csw, v5csw, v6csw};
 //int inputState2[8]={v2csw, v3csw, v4csw, v5csw, v6csw};
-int outputState1[13] = {p1, v1o, v2o, v3o, v4o, v5o, v6o, v1c, v2c, v3c, v4c, v5c, v6c};
-int outputState2[7] = {v2c, v3c, v4c, v5c, v6c, MTPIDOUT, HLTPIDOUT};
+int outputState1[13]; //= {p1, v1o, v2o, v3o, v4o, v5o, v6o, v1c, v2c, v3c, v4c, v5c, v6c};
+int outputState2[7]; //= {v2c, v3c, v4c, v5c, v6c, MTPIDOUT, HLTPIDOUT};
 byte shiftIN1;
 byte shiftIN2;
 int shiftOUT1;
@@ -165,7 +165,15 @@ int STEP2MIN[16];
 int STEP3MIN[16];
 int BOILTIME[16];
 int PROGNUM = 0;
-int strikelatch = LOW;
+int chilldone = 0;
+int whirlpooldone = 0;
+int boildone = 0;
+int spargedone = 0;
+int step3done = 0;
+int step2done = 0;
+int step1done = 0;
+int mashindone = 0;
+int strikedone = 0;
 
 //-----------------------------------------------------------------------------------------------------------------------
 void setup()
@@ -381,7 +389,7 @@ void menuscreen() {
 }
 
 
-
+//--------------------------------------------------------------------------------------------
 void manualControl() {
   if (encoder0Pos < 0) {
     encoder0Pos = 5;
@@ -940,7 +948,7 @@ void timer1() {
     endtime = 0; //zero out the end time
     timer1latch = LOW; //disable the latch for timer 1
   }
-  else if (endtime > millis()) {
+  else if (endtime > millis()) { //if the timer is not done
     //now = millis() / 1000;
     timeRemaining = ((endtime - millis()) / 60000); //calculate the countdown
     int timer1ON = HIGH; //set the timer on bit to high
@@ -1048,30 +1056,113 @@ void timer6() {
   return;
 }
 void runprogram() {
-  HLTsetpoint = HLTSTRIKE[PROGNUM];
+
+  if (strikedone == 0) {
+    strike();
+  }
+  if (mashindone == 0 && strikedone == 1) {
+    mashin();
+  }
+  if (step1done == 0 && mashindone == 1 && strikedone == 1) {
+    step1();
+  }
+  if (step2done == 0  && step1done == 1 && mashindone == 1 && strikedone == 1) {
+    step2();
+  }
+  if (step3done == 0 && step2done == 1 && step1done == 1 && mashindone == 1 && strikedone == 1) {
+    step3();
+  }
+  if (spargedone == 0  && step3done == 1 && step2done == 1 && step1done == 1 && mashindone == 1 && strikedone == 1) {
+    sparge();
+  }
+  if (boildone == 0 && spargedone == 1 && step3done == 1 && step2done == 1 && step1done == 1 && mashindone == 1 && strikedone == 1) {
+    boil();
+  }
+  if (whirlpooldone == 0 && boildone == 1 && spargedone == 1 && step3done == 1 && step2done == 1 && step1done == 1 && mashindone == 1 && strikedone == 1) {
+    whirlpool();
+  }
+  if (chilldone == 0 && whirlpooldone == 1 && boildone == 1 && spargedone == 1 && step3done == 1 && step2done == 1 && step1done == 1 && mashindone == 1 && strikedone == 1) {
+    chill();
+  }
+  return;
+}
+//---------------------------------------------------------------------------------------------
+void strike() {
+  HLTsetpoint = HLTSTRIKE[PROGNUM]; //set strike water temp
   latch16 = HIGH; //HLT PID controller on
   if (HLTInput > (HLTsetpoint - 2)) { //if the HLT is at temp then
-    int strikelatch = HIGH;
-  }
-  if (strikelatch == HIGH) {
     outputState1[1] = 1; //valve1 open
     timer1set = (.2 * 60000); //set delay timer to 12 sec
-    timer1latch = HIGH; //turn on the timer
+    timer1();
     if (timer1done == HIGH) { //if the delay timer is done then
       outputState1[0] = 1; //turn pump on
       outputState1[4] = 1; //valve 4 open
+latch16 = LOW: //turn off HLT PID
+      if (inputState1[12] == 0) { //if the flow switch closes
+        outputState1[4] = 0;
+        outputState1[10] = 1; //valve 4 close
+        outputState1[1] = 0;
+        outputState1[7] = 1; //valve 1 close
+        outputState1[0] = 0; //turn pump off
+      }
     }
   }
-  timer2set = (1 * 60000); //set pump timer to 1 minute (7 gal/min flowrate)
-  timer2latch = HIGH; //turn on the timer
-  if (timer2done == HIGH) {
-    outputState1[4] = 0;
-    outputState1[10] = 1; //valve 4 close
-    outputState1[1] = 0;
-    outputState1[7] = 1; //valve 1 close
+  strikedone = 1;
+  return;
+}
+//---------------------------------------------------------------------------------------------
+void mashin() {
+
+  timer2set = (2 * 60000); //set mash in delay timer to 2 minutes
+  timer2();  //turn on the timer
+  if (timer2done == HIGH) { //if the mash in timer is done then
+    outputState1[2] = 1; //valve 2 open
+    outputState1[0] = 1;  //turn pump on
+    outputState2[10] = 1; //valve 4 open
+    mashindone == 1;  //set mashindone bit high
   }
+  return;
+}
+void step1() {
+  HLTsetpoint = HLTSPARGE[PROGNUM];
+  MTsetpoint = MTSTEP1[PROGNUM];
+  latch16 = HIGH;  //turn HLT heater on
+  latch14 = HIGH;  //turn mash tun heater on
+  if (MTInput > (MTsetpoint - 2)) { //if the MT is at temp then
+    timer3set = STEP1MIN[PROGNUM];  //set the timer to step 1 time
+    timer3(); //run the timer
+    if (timer3done = HIGH); { //if step 1 timer is done then
+      step1done == 1;
+    }
+  }
+  return;
+}
+void step2() {
 
+  MTsetpoint = MTSTEP2[PROGNUM];
 
+  //latch14 = HIGH;  //turn mash tun heater on
+  if (MTInput > (MTsetpoint - 2)) { //if the MT is at temp then
+    timer4set = STEP2MIN[PROGNUM];  //set the timer to step 2 time
+    timer4(); //run the timer
+    if (timer4done = HIGH); { //if step 2 timer is done then
+      step2done == 1;
+    }
+  }
+  return;
+}
+void step3() {
+
+  MTsetpoint = MTSTEP3[PROGNUM];
+
+  //latch14 = HIGH;  //turn mash tun heater on
+  if (MTInput > (MTsetpoint - 2)) { //if the MT is at temp then
+    timer5set = STEP3MIN[PROGNUM];  //set the timer to step 3 time
+    timer5(); //run the timer
+    if (timer5done = HIGH); { //if step 3 timer is done then
+      step3done == 1;
+    }
+  }
   return;
 }
 
