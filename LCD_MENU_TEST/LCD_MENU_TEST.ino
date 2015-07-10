@@ -1097,7 +1097,7 @@ void strike() {
     if (timer1done == HIGH) { //if the delay timer is done then
       outputState1[0] = 1; //turn pump on
       outputState1[4] = 1; //valve 4 open
-latch16 = LOW: //turn off HLT PID
+      latch16 = LOW; //turn off HLT PID
       if (inputState1[12] == 0) { //if the flow switch closes
         outputState1[4] = 0;
         outputState1[10] = 1; //valve 4 close
@@ -1165,4 +1165,17 @@ void step3() {
   }
   return;
 }
+void sparge(){
+  return;
+}
+void boil(){
+  return;
+}
+void whirlpool(){
+  return;
+}
+void chill(){
+  return;
+}
+
 
