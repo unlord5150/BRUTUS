@@ -154,16 +154,16 @@ int timer7done = LOW;
 int timer7setup = LOW;
 int timer7latch = LOW;
 
-int HLTSTRIKE[16];
-int HLTSPARGE[16];
-int MTSTEP1[16];
-int MTSTEP2[16];
-int MTSTEP3[16];
-int MTSPARGE[16];
-int STEP1MIN[16];
-int STEP2MIN[16];
-int STEP3MIN[16];
-int BOILTIME[16];
+int HLTSTRIKE[16] = {178};
+int HLTSPARGE[16] = {178};
+int MTSTEP1[16] = {165};
+int MTSTEP2[16] = {165};
+int MTSTEP3[16] = {165};
+int MTSPARGE[16] = {165};
+int STEP1MIN[16] = {.1};
+int STEP2MIN[16] = {.1};
+int STEP3MIN[16] = {.1};
+int BOILTIME[16] = {.1};
 int PROGNUM = 0;
 int chilldone = 0;
 int whirlpooldone = 0;
@@ -174,6 +174,7 @@ int step2done = 0;
 int step1done = 0;
 int mashindone = 0;
 int strikedone = 0;
+int progdone = 0;
 
 //-----------------------------------------------------------------------------------------------------------------------
 void setup()
@@ -231,24 +232,24 @@ void loop() {
   if (latch16 == HIGH) {
     PIDcontrolHLT();
   }
-  if (timer1latch == HIGH) {
-    timer1();
-  }
-  if (timer2latch == HIGH) {
-    timer2();
-  }
-  if (timer3latch == HIGH) {
-    timer3();
-  }
-  if (timer4latch == HIGH) {
-    timer4();
-  }
-  if (timer5latch == HIGH) {
-    timer5();
-  }
-  if (timer6latch == HIGH) {
-    timer6();
-  }
+  //if (timer1latch == HIGH) {
+  //  timer1();
+  //}
+  //if (timer2latch == HIGH) {
+  //  timer2();
+ // }
+  //if (timer3latch == HIGH) {
+  //  timer3();
+ // }
+ // if (timer4latch == HIGH) {
+ //   timer4();
+ // }
+ // if (timer5latch == HIGH) {
+ //   timer5();
+ // }
+ // if (timer6latch == HIGH) {
+ //   timer6();
+ // }
   updateoutputs();
 }
 //----------------------------------------------------------------------------------------------------------------------------------
@@ -293,8 +294,6 @@ void homescreen() {
       lcd.print(j);
     }
   }
-
-
   lcd.setCursor(4, 2);
   lcd.print(HLTInput);
   lcd.setCursor(13, 2);
@@ -305,7 +304,7 @@ void homescreen() {
   lcd.print(timeRemaining);
   return;
 }
-
+//-------------------------------------------------------------------------------------------
 void menuscreen() {
   latch1 = LOW;
   latch2 = HIGH;
@@ -326,7 +325,6 @@ void menuscreen() {
   lcd.print("RUN PROG  EDIT PROG");
   lcd.setCursor(16, 3);
   lcd.print("EXIT");
-
   attachInterrupt(0, rotary, CHANGE);
 
   if (encoder0Pos < 0) {
@@ -355,7 +353,6 @@ void menuscreen() {
   lcd.setCursor(menuselectCol[encoder0Pos], menuselectRow[encoder0Pos]);
   lcd.print(">");
   //delay(5);
-
 
   if ((digitalRead(encoder0PinC) == LOW) && (encoder0Pos == 4)) {
     latch1 = HIGH;
@@ -387,7 +384,6 @@ void menuscreen() {
 
   return;
 }
-
 
 //--------------------------------------------------------------------------------------------
 void manualControl() {
@@ -458,7 +454,6 @@ void manualControl() {
     lcd.setCursor(manconCol[encoder0Pos - 5], manconRow[encoder0Pos - 5]);
     lcd.print(" ");
   }
-
 
   //delay(40);
   if ((digitalRead(encoder0PinC) == LOW) && (encoder0Pos == 5)) {
@@ -551,9 +546,7 @@ void manualControl() {
   return;
 }
 
-
-
-
+//---------------------------------------------------------------------------------------
 void valveControl() {
   if (encoder0Pos < 0) {
     encoder0Pos = 6;
@@ -607,7 +600,6 @@ void valveControl() {
   else if ((outputState1[4] == 1) || (inputState1[3] == 0)) {
     lcd.print("OPN");
   }
-
   lcd.setCursor(1, 3);
   lcd.print("V5:     V6:");
   lcd.setCursor(4, 3);
@@ -626,7 +618,6 @@ void valveControl() {
   }
   lcd.setCursor(16, 3);
   lcd.print("BACK");
-
   if ((encoder0Pos - 1) > -1) {
     lcd.setCursor(valveconCol[encoder0Pos - 1], valveconRow[encoder0Pos - 1]);
     lcd.print(" ");
@@ -645,7 +636,6 @@ void valveControl() {
   }
   lcd.setCursor(valveconCol[encoder0Pos], valveconRow[encoder0Pos]);
   lcd.print(">");
-
   if ((digitalRead(encoder0PinC) == LOW) && (outputState1[encoder0Pos + 1] == 0) && (encoder0Pos != 6) && (inputState1[encoder0Pos] == 1)) {
     lcd.setCursor((valveconCol[encoder0Pos] + 4), valveconRow[encoder0Pos]);
     lcd.print("OPN");
@@ -653,7 +643,6 @@ void valveControl() {
     outputState1[encoder0Pos + 7] = 0;
     delay(100);
   }
-
   else if ((digitalRead(encoder0PinC) == LOW) && (outputState1[encoder0Pos + 7] == 0) && (encoder0Pos != 6)  && (inputState1[encoder0Pos + 6] == 1)) {
     lcd.setCursor((valveconCol[encoder0Pos] + 4), valveconRow[encoder0Pos]);
     lcd.print("CLS");
@@ -661,7 +650,6 @@ void valveControl() {
     outputState1[encoder0Pos + 7] = 1;
     delay(100);
   }
-
   else if ((digitalRead(encoder0PinC) == LOW) && (encoder0Pos == 6)) {
     latch1 = LOW;
     latch2 = LOW;
@@ -680,7 +668,7 @@ void valveControl() {
   }
   return;
 }
-
+//---------------------------------------------------------------------------------------
 void updateoutputs() {
 
   for (int m = 1; m < 13; m++) {
@@ -718,7 +706,7 @@ void updateoutputs() {
   //delay(500);
   return;
 }
-
+//-------------------------------------------------------------------------------------------
 void settemps() {
   if (encoder0Pos < 0) {
     encoder0Pos = 2;
@@ -833,10 +821,9 @@ void settemps() {
     encoder0Pos = 0;
     delay(100);
   }
-
-
   return;
 }
+//-----------------------------------------------------------------------------------------
 void PIDcontrolMT() {
   if (latch17 == LOW) {
     windowStartTime = millis();
@@ -860,7 +847,7 @@ void PIDcontrolMT() {
 
   return;
 }
-
+//---------------------------------------------------------------------------------------
 void PIDcontrolHLT() {
   if (latch15 == LOW) {
     windowStartTime = millis();
@@ -884,7 +871,7 @@ void PIDcontrolHLT() {
 
   return;
 }
-
+//-----------------------------------------------------------------------------------------
 void updateinputs() {
 
   MTInput = ((analogRead(0) * .175953) + 32); //convert bits to deg F
@@ -914,6 +901,7 @@ void updateinputs() {
   //delay(500);
   return;
 }
+//------------------------------------------------------------------------------------------
 void rotary() {
   n = digitalRead(encoder0PinA);
   int encoder0Prev = encoder0Pos;
@@ -955,7 +943,7 @@ void timer1() {
   }
   return;
 }
-
+//-------------------------------------------------------------------------------------------
 void timer2() {
   if (timer2setup == LOW) { //if the skip bit is low
     starttime = millis(); //set the start time to current millis
@@ -975,7 +963,7 @@ void timer2() {
   }
   return;
 }
-
+//-------------------------------------------------------------------------------------------
 void timer3() {
   if (timer3setup == LOW) { //if the skip bit is low
     starttime = millis(); //set the start time to current millis
@@ -995,7 +983,7 @@ void timer3() {
   }
   return;
 }
-
+//-------------------------------------------------------------------------------------------
 void timer4() {
   if (timer4setup == LOW) { //if the skip bit is low
     starttime = millis(); //set the start time to current millis
@@ -1015,7 +1003,7 @@ void timer4() {
   }
   return;
 }
-
+//------------------------------------------------------------------------------------------
 void timer5() {
   if (timer5setup == LOW) { //if the skip bit is low
     starttime = millis(); //set the start time to current millis
@@ -1035,7 +1023,7 @@ void timer5() {
   }
   return;
 }
-
+//----------------------------------------------------------------------------------------
 void timer6() {
   if (timer6setup == LOW) { //if the skip bit is low
     starttime = millis(); //set the start time to current millis
@@ -1055,6 +1043,27 @@ void timer6() {
   }
   return;
 }
+//------------------------------------------------------------------------------------------
+void timer7() {
+  if (timer7setup == LOW) { //if the skip bit is low
+    starttime = millis(); //set the start time to current millis
+    endtime = starttime + timer7set; //set the end time
+    timer7setup = HIGH; //set the skip bit high
+  }
+  else if (endtime < millis()) { //if the timer is done
+    timer7done = HIGH; //set the timer done bit high
+    starttime = 0; //zero out the start time
+    endtime = 0; //zero out the end time
+    timer7latch = LOW; //disable the latch for timer 1
+  }
+  else if (endtime > millis()) {
+    //now = millis() / 1000;
+    timeRemaining = ((endtime - millis()) / 60000); //calculate the countdown
+    int timer7ON = HIGH; //set the timer on bit to high
+  }
+  return;
+}
+//----------------------------------------------------------------------------------------
 void runprogram() {
 
   if (strikedone == 0) {
@@ -1084,6 +1093,7 @@ void runprogram() {
   if (chilldone == 0 && whirlpooldone == 1 && boildone == 1 && spargedone == 1 && step3done == 1 && step2done == 1 && step1done == 1 && mashindone == 1 && strikedone == 1) {
     chill();
   }
+  progdone = 1;
   return;
 }
 //---------------------------------------------------------------------------------------------
@@ -1123,11 +1133,12 @@ void mashin() {
   }
   return;
 }
+//--------------------------------------------------------------------------------------------
 void step1() {
   HLTsetpoint = HLTSPARGE[PROGNUM];
   MTsetpoint = MTSTEP1[PROGNUM];
   latch16 = HIGH;  //turn HLT heater on
-  latch14 = HIGH;  //turn mash tun heater on
+  latch14 = HIGH;  //turn MT heater on
   if (MTInput > (MTsetpoint - 2)) { //if the MT is at temp then
     timer3set = STEP1MIN[PROGNUM];  //set the timer to step 1 time
     timer3(); //run the timer
@@ -1137,6 +1148,7 @@ void step1() {
   }
   return;
 }
+//-------------------------------------------------------------------------------------
 void step2() {
 
   MTsetpoint = MTSTEP2[PROGNUM];
@@ -1151,6 +1163,7 @@ void step2() {
   }
   return;
 }
+//--------------------------------------------------------------------------------------
 void step3() {
 
   MTsetpoint = MTSTEP3[PROGNUM];
@@ -1165,16 +1178,91 @@ void step3() {
   }
   return;
 }
-void sparge(){
+//--------------------------------------------------------------------------------------
+void sparge() {
+  MTsetpoint = MTSPARGE[PROGNUM];
+  if (MTInput > (MTsetpoint - 2)) { //if the MT is at temp then
+    latch14 = LOW; //turn off MT heater
+    outputState1[4] = 0;
+    outputState1[10] = 1; //valve 4 close
+    outputState1[11] = 0;
+    outputState1[5] = 1; //valve 5 open
+    if (inputState1[14] == 1) { //if the MT flow switch is off
+    }
+    else if (inputState1[14] == 0) { //if the MT flow switch closes
+      outputState1[5] = 0;
+      outputState1[11] = 1; //valve 5 close
+      outputState1[0] = 0;  //pump off
+      outputState1[2] = 0;
+      outputState1[8] = 1; //valve 2 close
+      latch16 = LOW ; //turn HLT heater off
+      outputState1[7] = 0;
+      outputState1[1] = 1; //valve 1 open
+      outputState1[0] = 1; //pump on
+      outputState1[10] = 0;
+      outputState1[4] = 1; //valve 4 open
+      if (inputState1[13] == 1) { //if the HLT flow switch is open
+      }
+      else if (inputState1[13] == 0) { //if the HLT flow swithc closes
+        outputState1[0] = 0; //pump off
+        outputState1[1] = 0;
+        outputState1[7] = 1; //valve 1 close
+        outputState1[8] = 0;
+        outputState1[2] = 1; //valve 2 open
+        outputState1[0] = 1; //pump on
+        latch14 = HIGH; // turn on MT heater
+        if (MTInput > (MTsetpoint - 2)) { //if the MT is at temp then
+          latch14 = LOW; //turn off MT heater
+          outputState1[4] = 0;
+          outputState1[10] = 1; //valve 4 close
+          outputState1[11] = 0;
+          outputState1[5] = 1; //valve 5 open
+          if (inputState1[14] == 1) { //if the MT flow switch is off
+          }
+          else if (inputState1[14] == 0) { //if the MT flow switch closes
+            outputState1[5] = 0;
+            outputState1[11] = 1; //valve 5 close
+            outputState1[0] = 0;  //pump off
+            outputState1[2] = 0;
+            outputState1[8] = 1; //valve 2 close
+            spargedone = 1;
+          }
+        }
+      }
+    }
+  }
   return;
 }
-void boil(){
+//----------------------------------------------------------------------------------------
+void boil() {
+  timer6set = BOILTIME[PROGNUM]; //set the boil timer
+  timer6(); //run the timer
+  if (timer6done == HIGH) {
+    boildone = 1;
+  }
   return;
 }
-void whirlpool(){
-  return;
+//-----------------------------------------------------------------------------------------
+void whirlpool() {
+  outputState1[9] = 0;
+  outputState1[3] = 1; //valve 3 open
+  outputState1[0] = 1; //pump on
+  outputState1[11] = 0;
+  outputState1[5] = 1; //valve 5 open
+  timer7set = (10 * 60000); //set timer to 10 min
+  timer7();
+  if (timer7done == HIGH) {
+  outputState1[5] = 0;
+  outputState1[11] = 1; //valve 5 close
+  whirlpooldone = 1;  
+  }
+    return;
 }
-void chill(){
+//-----------------------------------------------------------------------------------------
+void chill() {
+  outputState1[12] = 0;
+  outputState1[6] = 1; //valve 6 open
+  chilldone = 1;
   return;
 }
 
