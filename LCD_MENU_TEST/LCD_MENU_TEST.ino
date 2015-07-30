@@ -16,7 +16,7 @@ unsigned long windowStartTime; //PID starttime variable
 // set the LCD address to 0x27 for a 20 chars and 4 line display
 LiquidCrystal_I2C lcd(0x27, 20, 4);
 //set the pinouts
-int ISRpin = 2; //interrupt0 is on pin 2
+//int ISRpin = 2; //interrupt0 is on pin 2
 int latchPin = 5; //shiftOUT latch  pin
 int clockPin = 6; //shiftOUT clock pin
 int dataPin = 4; //shiftOUT data pin
@@ -58,6 +58,9 @@ int latch14 = LOW;
 int latch15 = LOW;
 int latch16 = LOW;
 int latch17 = LOW;
+int latch18 = LOW; //set the run program latch low
+int latch19 = LOW; //set the call program latch low
+int latch20 = LOW; //set the edit program latch low
 //int p1 = 0;
 //int v1o = 0;
 //int v2o = 0;
@@ -154,12 +157,12 @@ int timer7done = LOW;
 int timer7setup = LOW;
 int timer7latch = LOW;
 
-int HLTSTRIKE[16] = {178};
-int HLTSPARGE[16] = {178};
-int MTSTEP1[16] = {165};
-int MTSTEP2[16] = {165};
-int MTSTEP3[16] = {165};
-int MTSPARGE[16] = {165};
+int HLTSTRIKE[16] = {153};
+int HLTSPARGE[16] = {153};
+int MTSTEP1[16] = {176};
+int MTSTEP2[16] = {176};
+int MTSTEP3[16] = {176};
+int MTSPARGE[16] = {176};
 int STEP1MIN[16] = {.1};
 int STEP2MIN[16] = {.1};
 int STEP3MIN[16] = {.1};
@@ -210,6 +213,7 @@ void setup()
 
 //------------------------------------------------------------------------------------------------------------------------------------
 void loop() {
+  //Serial.println(millis());
   updateinputs();
   if (latch1 == HIGH) {
     homescreen();
@@ -232,24 +236,33 @@ void loop() {
   if (latch16 == HIGH) {
     PIDcontrolHLT();
   }
+//  if (latch18 == HIGH) {
+//    runprogram();
+//  }
+//  if (latch19 == HIGH) {
+//    callprogram();
+//  }
+//  if (latch20 == HIGH) {
+//    editprogram();
+//  }
   //if (timer1latch == HIGH) {
   //  timer1();
   //}
   //if (timer2latch == HIGH) {
   //  timer2();
- // }
+  // }
   //if (timer3latch == HIGH) {
   //  timer3();
- // }
- // if (timer4latch == HIGH) {
- //   timer4();
- // }
- // if (timer5latch == HIGH) {
- //   timer5();
- // }
- // if (timer6latch == HIGH) {
- //   timer6();
- // }
+  // }
+  // if (timer4latch == HIGH) {
+  //   timer4();
+  // }
+  // if (timer5latch == HIGH) {
+  //   timer5();
+  // }
+  // if (timer6latch == HIGH) {
+  //   timer6();
+  // }
   updateoutputs();
 }
 //----------------------------------------------------------------------------------------------------------------------------------
@@ -266,11 +279,11 @@ void homescreen() {
     latch5 = HIGH;
   }
   lcd.setCursor(0, 0);
-  lcd.print("HOME         PROG#  ");
+  lcd.print("HOME         PROG#");
   lcd.setCursor(0, 1);
   lcd.print("P1:    VIN:  VOUT:  ");
   lcd.setCursor(0, 2);
-  lcd.print("HLT:      MT:      ");
+  lcd.print("HLT:      MT:");
   lcd.setCursor(0, 3);
   lcd.print("STEP:    TIME:   min");
   lcd.setCursor(18, 0);
@@ -381,7 +394,21 @@ void menuscreen() {
     //lcd.clear();
     delay(100);
   }
-
+  if ((digitalRead(encoder0PinC) == LOW) && (encoder0Pos == 2)) {
+    latch1 = HIGH;
+    latch2 = LOW;
+    latch3 = LOW;
+    latch4 = LOW;
+    latch5 = LOW;
+    latch6 = LOW;
+    latch8 = LOW;
+    latch18 - HIGH;
+    encoder0Pos = 0;
+    //encoder0PinALast = HIGH;
+    //n = HIGH;
+    //lcd.clear();
+    delay(100);
+  }
   return;
 }
 
@@ -874,7 +901,8 @@ void PIDcontrolHLT() {
 //-----------------------------------------------------------------------------------------
 void updateinputs() {
 
-  MTInput = ((analogRead(0) * .175953) + 32); //convert bits to deg F
+  MTInput = (((analogRead(0)-10)* .175953)+32) ; //convert bits to deg F
+  Serial.println(MTInput);
   HLTInput = ((analogRead(1) * .175953) + 32); //convert bits to deg F
   digitalWrite(loadPin, HIGH);
   delayMicroseconds(20);
@@ -1064,206 +1092,215 @@ void timer7() {
   return;
 }
 //----------------------------------------------------------------------------------------
-void runprogram() {
-
-  if (strikedone == 0) {
-    strike();
-  }
-  if (mashindone == 0 && strikedone == 1) {
-    mashin();
-  }
-  if (step1done == 0 && mashindone == 1 && strikedone == 1) {
-    step1();
-  }
-  if (step2done == 0  && step1done == 1 && mashindone == 1 && strikedone == 1) {
-    step2();
-  }
-  if (step3done == 0 && step2done == 1 && step1done == 1 && mashindone == 1 && strikedone == 1) {
-    step3();
-  }
-  if (spargedone == 0  && step3done == 1 && step2done == 1 && step1done == 1 && mashindone == 1 && strikedone == 1) {
-    sparge();
-  }
-  if (boildone == 0 && spargedone == 1 && step3done == 1 && step2done == 1 && step1done == 1 && mashindone == 1 && strikedone == 1) {
-    boil();
-  }
-  if (whirlpooldone == 0 && boildone == 1 && spargedone == 1 && step3done == 1 && step2done == 1 && step1done == 1 && mashindone == 1 && strikedone == 1) {
-    whirlpool();
-  }
-  if (chilldone == 0 && whirlpooldone == 1 && boildone == 1 && spargedone == 1 && step3done == 1 && step2done == 1 && step1done == 1 && mashindone == 1 && strikedone == 1) {
-    chill();
-  }
-  progdone = 1;
-  return;
-}
+//void runprogram() {
+//
+//  if (strikedone == 0) {
+//    strike();
+//  }
+//  if (mashindone == 0 && strikedone == 1) {
+//    mashin();
+//  }
+//  if (step1done == 0 && mashindone == 1 && strikedone == 1) {
+//    step1();
+//  }
+//  if (step2done == 0  && step1done == 1 && mashindone == 1 && strikedone == 1) {
+//    step2();
+//  }
+//  if (step3done == 0 && step2done == 1 && step1done == 1 && mashindone == 1 && strikedone == 1) {
+//    step3();
+//  }
+//  if (spargedone == 0  && step3done == 1 && step2done == 1 && step1done == 1 && mashindone == 1 && strikedone == 1) {
+//    sparge();
+//  }
+//  if (boildone == 0 && spargedone == 1 && step3done == 1 && step2done == 1 && step1done == 1 && mashindone == 1 && strikedone == 1) {
+//    boil();
+//  }
+//  if (whirlpooldone == 0 && boildone == 1 && spargedone == 1 && step3done == 1 && step2done == 1 && step1done == 1 && mashindone == 1 && strikedone == 1) {
+//    whirlpool();
+//  }
+//  if (chilldone == 0 && whirlpooldone == 1 && boildone == 1 && spargedone == 1 && step3done == 1 && step2done == 1 && step1done == 1 && mashindone == 1 && strikedone == 1) {
+//    chill();
+//  }
+//  progdone = 1;
+//  return;
+//}
 //---------------------------------------------------------------------------------------------
-void strike() {
-  HLTsetpoint = HLTSTRIKE[PROGNUM]; //set strike water temp
-  latch16 = HIGH; //HLT PID controller on
-  if (HLTInput > (HLTsetpoint - 2)) { //if the HLT is at temp then
-    outputState1[1] = 1; //valve1 open
-    timer1set = (.2 * 60000); //set delay timer to 12 sec
-    timer1();
-    if (timer1done == HIGH) { //if the delay timer is done then
-      outputState1[0] = 1; //turn pump on
-      outputState1[4] = 1; //valve 4 open
-      latch16 = LOW; //turn off HLT PID
-      if (inputState1[12] == 0) { //if the flow switch closes
-        outputState1[4] = 0;
-        outputState1[10] = 1; //valve 4 close
-        outputState1[1] = 0;
-        outputState1[7] = 1; //valve 1 close
-        outputState1[0] = 0; //turn pump off
-      }
-    }
-  }
-  strikedone = 1;
-  return;
-}
+//void strike() {
+//  HLTsetpoint = HLTSTRIKE[PROGNUM]; //set strike water temp
+//  latch16 = HIGH; //HLT PID controller on
+//  if (HLTInput > (HLTsetpoint - 2)) { //if the HLT is at temp then
+//    outputState1[7] = 0;
+//    outputState1[1] = 1; //valve1 open
+//    timer1set = (.2 * 60000); //set delay timer to 12 sec
+//    timer1();
+//    if (timer1done == HIGH) { //if the delay timer is done then
+//      outputState1[0] = 1; //turn pump on
+//      outputState1[10] = 0;
+//      outputState1[4] = 1; //valve 4 open
+//      latch16 = LOW; //turn off HLT PID
+//      if (inputState1[12] == 0) { //if the HLT flow switch closes
+//        outputState1[4] = 0;
+//        outputState1[10] = 1; //valve 4 close
+//        outputState1[1] = 0;
+//        outputState1[7] = 1; //valve 1 close
+//        outputState1[0] = 0; //turn pump off
+//        strikedone = 1;
+//      }
+//    }
+//  }
+//  return;
+//}
 //---------------------------------------------------------------------------------------------
-void mashin() {
-
-  timer2set = (2 * 60000); //set mash in delay timer to 2 minutes
-  timer2();  //turn on the timer
-  if (timer2done == HIGH) { //if the mash in timer is done then
-    outputState1[2] = 1; //valve 2 open
-    outputState1[0] = 1;  //turn pump on
-    outputState2[10] = 1; //valve 4 open
-    mashindone == 1;  //set mashindone bit high
-  }
-  return;
-}
+//void mashin() {
+//
+//  timer2set = (2 * 60000); //set mash in delay timer to 2 minutes
+//  timer2();  //turn on the timer
+//  if (timer2done == HIGH) { //if the mash in timer is done then
+//    outputState1[2] = 1; //valve 2 open
+//    outputState1[0] = 1;  //turn pump on
+//    outputState2[10] = 1; //valve 4 open
+//    mashindone == 1;  //set mashindone bit high
+//  }
+//  return;
+//}
 //--------------------------------------------------------------------------------------------
-void step1() {
-  HLTsetpoint = HLTSPARGE[PROGNUM];
-  MTsetpoint = MTSTEP1[PROGNUM];
-  latch16 = HIGH;  //turn HLT heater on
-  latch14 = HIGH;  //turn MT heater on
-  if (MTInput > (MTsetpoint - 2)) { //if the MT is at temp then
-    timer3set = STEP1MIN[PROGNUM];  //set the timer to step 1 time
-    timer3(); //run the timer
-    if (timer3done = HIGH); { //if step 1 timer is done then
-      step1done == 1;
-    }
-  }
-  return;
-}
+//void step1() {
+//  HLTsetpoint = HLTSPARGE[PROGNUM];
+//  MTsetpoint = MTSTEP1[PROGNUM];
+//  latch16 = HIGH;  //turn HLT heater on
+//  latch14 = HIGH;  //turn MT heater on
+//  if (MTInput > (MTsetpoint - 2)) { //if the MT is at temp then
+//    timer3set = STEP1MIN[PROGNUM];  //set the timer to step 1 time
+//    timer3(); //run the timer
+//    if (timer3done = HIGH); { //if step 1 timer is done then
+//      step1done == 1;
+//    }
+//  }
+//  return;
+//}
 //-------------------------------------------------------------------------------------
-void step2() {
-
-  MTsetpoint = MTSTEP2[PROGNUM];
-
-  //latch14 = HIGH;  //turn mash tun heater on
-  if (MTInput > (MTsetpoint - 2)) { //if the MT is at temp then
-    timer4set = STEP2MIN[PROGNUM];  //set the timer to step 2 time
-    timer4(); //run the timer
-    if (timer4done = HIGH); { //if step 2 timer is done then
-      step2done == 1;
-    }
-  }
-  return;
-}
+//void step2() {
+//
+//  MTsetpoint = MTSTEP2[PROGNUM];
+//
+//  //latch14 = HIGH;  //turn mash tun heater on
+//  if (MTInput > (MTsetpoint - 2)) { //if the MT is at temp then
+//    timer4set = STEP2MIN[PROGNUM];  //set the timer to step 2 time
+//    timer4(); //run the timer
+//    if (timer4done = HIGH); { //if step 2 timer is done then
+//      step2done == 1;
+//    }
+//  }
+//  return;
+//}
 //--------------------------------------------------------------------------------------
-void step3() {
-
-  MTsetpoint = MTSTEP3[PROGNUM];
-
-  //latch14 = HIGH;  //turn mash tun heater on
-  if (MTInput > (MTsetpoint - 2)) { //if the MT is at temp then
-    timer5set = STEP3MIN[PROGNUM];  //set the timer to step 3 time
-    timer5(); //run the timer
-    if (timer5done = HIGH); { //if step 3 timer is done then
-      step3done == 1;
-    }
-  }
-  return;
-}
+//void step3() {
+//
+//  MTsetpoint = MTSTEP3[PROGNUM];
+//
+//  //latch14 = HIGH;  //turn mash tun heater on
+//  if (MTInput > (MTsetpoint - 2)) { //if the MT is at temp then
+//    timer5set = STEP3MIN[PROGNUM];  //set the timer to step 3 time
+//    timer5(); //run the timer
+//    if (timer5done = HIGH); { //if step 3 timer is done then
+//      step3done == 1;
+//    }
+//  }
+//  return;
+//}
 //--------------------------------------------------------------------------------------
-void sparge() {
-  MTsetpoint = MTSPARGE[PROGNUM];
-  if (MTInput > (MTsetpoint - 2)) { //if the MT is at temp then
-    latch14 = LOW; //turn off MT heater
-    outputState1[4] = 0;
-    outputState1[10] = 1; //valve 4 close
-    outputState1[11] = 0;
-    outputState1[5] = 1; //valve 5 open
-    if (inputState1[14] == 1) { //if the MT flow switch is off
-    }
-    else if (inputState1[14] == 0) { //if the MT flow switch closes
-      outputState1[5] = 0;
-      outputState1[11] = 1; //valve 5 close
-      outputState1[0] = 0;  //pump off
-      outputState1[2] = 0;
-      outputState1[8] = 1; //valve 2 close
-      latch16 = LOW ; //turn HLT heater off
-      outputState1[7] = 0;
-      outputState1[1] = 1; //valve 1 open
-      outputState1[0] = 1; //pump on
-      outputState1[10] = 0;
-      outputState1[4] = 1; //valve 4 open
-      if (inputState1[13] == 1) { //if the HLT flow switch is open
-      }
-      else if (inputState1[13] == 0) { //if the HLT flow swithc closes
-        outputState1[0] = 0; //pump off
-        outputState1[1] = 0;
-        outputState1[7] = 1; //valve 1 close
-        outputState1[8] = 0;
-        outputState1[2] = 1; //valve 2 open
-        outputState1[0] = 1; //pump on
-        latch14 = HIGH; // turn on MT heater
-        if (MTInput > (MTsetpoint - 2)) { //if the MT is at temp then
-          latch14 = LOW; //turn off MT heater
-          outputState1[4] = 0;
-          outputState1[10] = 1; //valve 4 close
-          outputState1[11] = 0;
-          outputState1[5] = 1; //valve 5 open
-          if (inputState1[14] == 1) { //if the MT flow switch is off
-          }
-          else if (inputState1[14] == 0) { //if the MT flow switch closes
-            outputState1[5] = 0;
-            outputState1[11] = 1; //valve 5 close
-            outputState1[0] = 0;  //pump off
-            outputState1[2] = 0;
-            outputState1[8] = 1; //valve 2 close
-            spargedone = 1;
-          }
-        }
-      }
-    }
-  }
-  return;
-}
+//void sparge() {
+//  MTsetpoint = MTSPARGE[PROGNUM];
+//  if (MTInput > (MTsetpoint - 2)) { //if the MT is at temp then
+//    latch14 = LOW; //turn off MT heater
+//    outputState1[4] = 0;
+//    outputState1[10] = 1; //valve 4 close
+//    outputState1[11] = 0;
+//    outputState1[5] = 1; //valve 5 open
+//    if (inputState1[13] == 1) { //if the MT flow switch is off
+//    }
+//    else if (inputState1[13] == 0) { //if the MT flow switch closes
+//      outputState1[5] = 0;
+//      outputState1[11] = 1; //valve 5 close
+//      outputState1[0] = 0;  //pump off
+//      outputState1[2] = 0;
+//      outputState1[8] = 1; //valve 2 close
+//      latch16 = LOW ; //turn HLT heater off
+//      outputState1[7] = 0;
+//      outputState1[1] = 1; //valve 1 open
+//      outputState1[0] = 1; //pump on
+//      outputState1[10] = 0;
+//      outputState1[4] = 1; //valve 4 open
+//      if (inputState1[12] == 1) { //if the HLT flow switch is open
+//      }
+//      else if (inputState1[12] == 0) { //if the HLT flow swithc closes
+//        outputState1[0] = 0; //pump off
+//        outputState1[1] = 0;
+//        outputState1[7] = 1; //valve 1 close
+//        outputState1[8] = 0;
+//        outputState1[2] = 1; //valve 2 open
+//        outputState1[0] = 1; //pump on
+//        latch14 = HIGH; // turn on MT heater
+//        if (MTInput > (MTsetpoint - 2)) { //if the MT is at temp then
+//          latch14 = LOW; //turn off MT heater
+//          outputState1[4] = 0;
+//          outputState1[10] = 1; //valve 4 close
+//          outputState1[11] = 0;
+//          outputState1[5] = 1; //valve 5 open
+//          if (inputState1[13] == 1) { //if the MT flow switch is off
+//          }
+//          else if (inputState1[13] == 0) { //if the MT flow switch closes
+//            outputState1[5] = 0;
+//            outputState1[11] = 1; //valve 5 close
+//            outputState1[0] = 0;  //pump off
+//            outputState1[2] = 0;
+//            outputState1[8] = 1; //valve 2 close
+//            spargedone = 1;
+//          }
+//        }
+//      }
+//    }
+//  }
+//  return;
+//}
 //----------------------------------------------------------------------------------------
-void boil() {
-  timer6set = BOILTIME[PROGNUM]; //set the boil timer
-  timer6(); //run the timer
-  if (timer6done == HIGH) {
-    boildone = 1;
-  }
-  return;
-}
+//void boil() {
+//  timer6set = BOILTIME[PROGNUM]; //set the boil timer
+//  timer6(); //run the timer
+//  if (timer6done == HIGH) {
+//    boildone = 1;
+//  }
+//  return;
+//}
 //-----------------------------------------------------------------------------------------
-void whirlpool() {
-  outputState1[9] = 0;
-  outputState1[3] = 1; //valve 3 open
-  outputState1[0] = 1; //pump on
-  outputState1[11] = 0;
-  outputState1[5] = 1; //valve 5 open
-  timer7set = (10 * 60000); //set timer to 10 min
-  timer7();
-  if (timer7done == HIGH) {
-  outputState1[5] = 0;
-  outputState1[11] = 1; //valve 5 close
-  whirlpooldone = 1;  
-  }
-    return;
-}
+//void whirlpool() {
+//  outputState1[9] = 0;
+//  outputState1[3] = 1; //valve 3 open
+//  outputState1[0] = 1; //pump on
+//  outputState1[11] = 0;
+//  outputState1[5] = 1; //valve 5 open
+//  timer7set = (10 * 60000); //set timer to 10 min
+//  timer7();
+//  if (timer7done == HIGH) {
+//    outputState1[5] = 0;
+//    outputState1[11] = 1; //valve 5 close
+//    whirlpooldone = 1;
+//  }
+//  return;
+//}
 //-----------------------------------------------------------------------------------------
-void chill() {
-  outputState1[12] = 0;
-  outputState1[6] = 1; //valve 6 open
-  chilldone = 1;
-  return;
-}
-
+//void chill() {
+//  outputState1[12] = 0;
+//  outputState1[6] = 1; //valve 6 open
+//  chilldone = 1;
+//  return;
+//}
+//----------------------------------------------------------------------------------------
+//void callprogram() {
+//return;
+//}
+//----------------------------------------------------------------------------------------
+//void editprogram(){
+//  return;
+//}
 
