@@ -901,7 +901,8 @@ void PIDcontrolHLT() {
 //-----------------------------------------------------------------------------------------
 void updateinputs() {
 
-  MTInput = (((analogRead(0)-10)* .175953)+32) ; //convert bits to deg F
+  MTInput = ((analogRead(0)*.295)+32)
+  ; //convert bits to deg F
   Serial.println(MTInput);
   HLTInput = ((analogRead(1) * .175953) + 32); //convert bits to deg F
   digitalWrite(loadPin, HIGH);
